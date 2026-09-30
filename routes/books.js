@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const pool = require("../CoPoDestrputer.js");
 const {
   WriteData,
   loaddata,
@@ -12,37 +13,45 @@ async function laodrouter() {
   } else {
     let Books = data.book;
     let id = data.ID;
-    router.get("/books", (req, res) => {
+    router.get("/books", async (req, res) => {
       let { name, author } = req.query;
       if (!name && !author) {
-        return res.status(200).json(Books);
+        const result = await pool.query("SELECT * FROM books");
+        return res.status(200).json(result.rows);
       } else {
         let book;
         if (!name) {
-          book = Books.filter((book) => book.author === author);
+          book = await pool.query("SELECT * FROM books WHERE author = $1", [
+            author,
+          ]);
         } else if (!author) {
-          book = Books.filter((book) => book.name === name);
+          book = await pool.query("SELECT * FROM books WHERE name = $1", [
+            name,
+          ]);
         } else {
-          book = Books.filter(
-            (book) => book.name === name && book.author === author,
+          book = await pool.query(
+            "SELECT * FROM books WHERE name = $1 AND author = $2",
+            [name, author],
           );
         }
-        if (book.length === 0) {
+        if (book.rows.length === 0) {
           return res.status(200).json([]);
         }
-        return res.status(200).json(book);
+        return res.status(200).json(book.rows);
       }
     });
-    router.get("/books/:id", (req, res) => {
+    router.get("/books/:id", async (req, res) => {
       let Id = Number(req.params.id);
-      let book = Books.find((book) => book.id === Id);
-      if (!book) {
+      let book = await pool.query("SELECT * FROM books WHERE id = $1",
+        [Id]
+      )
+      if (book.rows.length === 0) {
         return res.status(404).json({
           error: "Not Found",
           message: "books not there",
         });
       } else {
-        res.json(book);
+        res.json(book.rows);
       }
     });
 

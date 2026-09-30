@@ -16,7 +16,7 @@ test("GET /api/books/:id return exact id", async () => {
   const validID = allbooks.body[0].id;
   const response = await request(app).get(`/api/books/${validID}`);
   expect(response.statusCode).toBe(200);
-  expect(response.body.id).toBe(validID);
+  expect(response.body[0].id).toBe(validID);
 });
 test("GET /api/books/:id returns 404 for a non exsiting book", async () => {
   const response = await request(app).get("/api/books/9999");
