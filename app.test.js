@@ -16,7 +16,8 @@ test("GET /api/books/:id return exact id", async () => {
   const validID = allbooks.body[0].id;
   const response = await request(app).get(`/api/books/${validID}`);
   expect(response.statusCode).toBe(200);
-  expect(response.body[0].id).toBe(validID);
+  console.log(response.body)
+  expect(response.body.id).toBe(validID);
 });
 test("GET /api/books/:id returns 404 for a non exsiting book", async () => {
   const response = await request(app).get("/api/books/9999");
@@ -36,8 +37,9 @@ test("POST /api/books create a new book", async () => {
   const response = await request(app)
     .post("/api/books")
     .send({ name: "testBook", author: "testAuthor" });
+    createdID = response.body.id;
   expect(response.statusCode).toBe(201);
-  createdID = response.body.id;
+  console.log(createdID)
 });
 test("POST /api/books return 400 bad body", async () => {
   const response = await request(app).post("/api/books").send({});
