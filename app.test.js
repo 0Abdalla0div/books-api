@@ -1,10 +1,7 @@
-const { createapp } = require("./app");
+const { app } = require("./app");
 const request = require("supertest");
-let app;
 let createdID;
-beforeAll(async () => {
-  app = await createapp();
-});
+
 
 test("GET /api/books returns books", async () => {
   const response = await request(app).get("/api/books");
@@ -39,7 +36,6 @@ test("POST /api/books create a new book", async () => {
     .send({ name: "testBook", author: "testAuthor" });
     createdID = response.body.id;
   expect(response.statusCode).toBe(201);
-  console.log(createdID)
 });
 test("POST /api/books return 400 bad body", async () => {
   const response = await request(app).post("/api/books").send({});
@@ -48,25 +44,25 @@ test("POST /api/books return 400 bad body", async () => {
 test("PUT /api/books update values", async () => {
   const response = await request(app)
     .put(`/api/books/${createdID}`)
-    .send({ name: "test2", author: "test2" });
+    .send({ name: `test${121}`, author:  `test${121}` });
   expect(response.statusCode).toBe(200);
 });
 test("PUT /api/books return 400 bad values", async () => {
   const response = await request(app)
     .put(`/api/books/${createdID}`)
-    .send({ author: "test3" });
+    .send({ author: `test${createdID - 1}` });
   expect(response.statusCode).toBe(400);
 });
 test("PATCH /api/books update one value", async () => {
   const response = await request(app)
     .patch(`/api/books/${createdID}`)
-    .send({ author: "test4" });
+    .send({ author: `test${createdID - 1}` });
   expect(response.statusCode).toBe(200);
 });
 test("PATCH /api/books update two values", async () => {
   const response = await request(app)
     .patch(`/api/books/${createdID}`)
-    .send({ name: "test5", author: "test5" });
+    .send({ name: `test${createdID}`, author: `test${createdID}` });
   expect(response.statusCode).toBe(200);
 });
 test("PATCH /api/books 400 bad values", async () => {

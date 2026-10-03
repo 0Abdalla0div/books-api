@@ -1,22 +1,15 @@
 const express = require("express");
-const startruter = require("./routes/books");
-async function createapp() {
-  const app = express();
-  let broutes;
-  try {
-    broutes = await startruter();
-  } catch (err) {
-    throw new Error(
-      `Failed to load routes error: ${err.message}. Server not started.`,
-    );
-  }
+const routes = require("./routes/books");
+const app = express();
+
+
   app.use(express.json());
   const logger = (req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
   };
   app.use(logger);
-  app.use("/api", broutes);
+  app.use("/api", routes);
   app.get("/", (req, res) => {
     res.send("hello");
   });
@@ -31,6 +24,5 @@ async function createapp() {
       message: "somthing went wrong",
     });
   });
-  return app;
-}
-module.exports = { createapp };
+
+module.exports = { app };
