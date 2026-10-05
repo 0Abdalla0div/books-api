@@ -9,7 +9,6 @@ const validatebook = (req, res, next) => {
       .json(data.Errors,);
   }
 };
-
 function validateData(data) {
   const errors = {};
   const validData = {};

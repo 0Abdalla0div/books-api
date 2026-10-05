@@ -1,9 +1,7 @@
 const express = require("express");
 const routes = require("./routes/books");
 const app = express();
-
-
-  app.use(express.json());
+app.use(express.json());
   const logger = (req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
@@ -16,7 +14,6 @@ const app = express();
   app.get("/home", (req, res) => {
     res.send("youre home");
   });
-
   app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).json({
@@ -24,5 +21,4 @@ const app = express();
       message: "somthing went wrong",
     });
   });
-
 module.exports = { app };

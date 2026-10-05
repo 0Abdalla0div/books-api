@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../CoPoDestrputer.js");
 const { validatebook } = require("../functions/filesUtil.js");
-
 router.get("/books", async (req, res) => {
   let { name, author } = req.query;
   if (!name && !author) {
