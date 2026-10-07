@@ -1,7 +1,7 @@
 const { app } = require("./app");
 const request = require("supertest");
 let createdID;
-
+let userid;
 
 test("GET /api/books returns books", async () => {
   const response = await request(app).get("/api/books");
@@ -74,3 +74,14 @@ test("DELETE /api/books/:id return 200", async () => {
     expect(response.statusCode).toBe(200);
 });
 // if some tests failes it might be cuz post test failled i will takle this later
+test("GET /api/users return all users", async () => {
+  const response = await request(app).get("/api/users");
+  expect(response.statusCode).toBe(200);
+  expect(Array.isArray(response.body)).toBe(true);
+});
+test("POST /api/users create a new user", async () => {
+  const response = await request(app)
+    .post("/api/users")
+    .send({ name: "testuser", email: `testuser${Date.now()}@email.com` });
+  expect(response.statusCode).toBe(201);
+});

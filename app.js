@@ -1,5 +1,6 @@
 const express = require("express");
-const routes = require("./routes/books");
+const booksroutes = require("./routes/books");
+const usersroutes = require("./routes/users");
 const app = express();
 app.use(express.json());
   const logger = (req, res, next) => {
@@ -7,7 +8,8 @@ app.use(express.json());
     next();
   };
   app.use(logger);
-  app.use("/api", routes);
+  app.use("/api", booksroutes);
+  app.use("/api", usersroutes);
   app.get("/", (req, res) => {
     res.send("hello");
   });
