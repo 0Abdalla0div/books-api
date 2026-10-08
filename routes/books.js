@@ -65,7 +65,6 @@ router.post("/books", validatebook, async (req, res) => {
     message: "change the book",
   });
 });
-
 router.delete("/books/:id", async (req, res) => {
   const id = Number(req.params.id);
   const bookindex = await pool.query("SELECT * FROM testbooks WHERE id = $1", [
