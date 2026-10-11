@@ -15,7 +15,7 @@ router.post("/borrowings", async (req, res) => {
     );
     return res.status(201).json(newBorrowing.rows[0]);
   } catch (err) {
-    if (err.code === 23503) {
+    if (err.code === "23503") {
       return res.status(404).json({
         error: "Not Found",
         message: "user or book does not exist",
@@ -44,13 +44,13 @@ router.patch("/borrowings/:id/return", async (req, res) => {
     }
     const bookid = updated.rows[0].book_id;
     const nextpending = await clint.query(
-      "SELECT * FROM borrowings WHERE id = $1 AND status = 'pending' ORDER BY borrowed_at ASC LIMIT 1",
+      "SELECT * FROM borrowings WHERE book_id = $1 AND status = 'pending' ORDER BY borrowed_at ASC LIMIT 1",
       [bookid],
     );
     if (nextpending.rows.length > 0) {
       await clint.query(
         "UPDATE borrowings SET status = 'borrowed' WHERE id = $1",
-        [nextpending.rows.id],
+        [nextpending.rows[0].id],
       );
     }
     await clint.query("COMMIT");
