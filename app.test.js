@@ -3,6 +3,7 @@ const request = require("supertest");
 let createdID;
 let userid;
 let borrowid;
+let pending;
 test("GET /api/books returns books", async () => {
   const response = await request(app).get("/api/books");
   expect(response.statusCode).toBe(200);
@@ -86,6 +87,10 @@ test("POST /api/users create a new user", async () => {
   expect(response.statusCode).toBe(201);
   userid = response.body.id;
 });
+test("PATCH /api/borrowings/:id/return return a book", async () => {
+  const reponse = await request(app).patch(`/api/borrowings/57/return`);
+  expect(reponse.statusCode).toBe(404);
+});
 test("POST /api/borrowings create a borrow order", async () => {
   const response = await request(app)
     .post("/api/borrowings")
@@ -93,14 +98,43 @@ test("POST /api/borrowings create a borrow order", async () => {
   expect(response.statusCode).toBe(201);
   borrowid = response.body.id;
 });
+test("POST /api/borrowings try to borrow an unexicting book", async () => {
+  const response = await request(app)
+    .post("/api/borrowings")
+    .send({ user_id: `${userid}`, book_id: `${1}` });
+  expect(response.statusCode).toBe(404);
+});
 test("POST /api/borrowings create a borrow order that is pending", async () => {
   const response = await request(app)
     .post("/api/borrowings")
     .send({ user_id: `${userid}`, book_id: `${createdID}` });
-    expect(response.body.status).toBe('pending');
+  pending = response.body.id;
+  expect(response.body.status).toBe("pending");
   expect(response.statusCode).toBe(201);
 });
+test("GET /api/borrowings/:id get a borrowing record", async () => {
+  const response = await request(app).get(`/api/borrowings/${borrowid}`);
+  expect(response.body.status).toBe("borrowed");
+  expect(response.statusCode).toBe(200);
+});
 test("PATCH /api/borrowings/:id/return return a book", async () => {
-  const reponse = await request(app).patch(`/api/borrowings/${borrowid}/return`);
+  const reponse = await request(app).patch(
+    `/api/borrowings/${borrowid}/return`,
+  );
+  expect(reponse.body.status).toBe("returned");
   expect(reponse.statusCode).toBe(200);
-})
+});
+test("PATCH /api/borrowings/:id/return with no pending request", async () => {
+  const returnpend = await request(app).patch(`/api/borrowings/${pending}/return`);
+  const borrow = await request(app)
+    .post("/api/borrowings")
+    .send({ user_id: `${userid}`, book_id: `${createdID}` });
+
+  const response = await request(app).patch(
+    `/api/borrowings/${borrow.body.id}/return`,
+  );
+  console.log(borrow.body);
+  expect(returnpend.statusCode).toBe(200);
+  expect(borrow.statusCode).toBe(201);
+  expect(response.statusCode).toBe(200);
+});
