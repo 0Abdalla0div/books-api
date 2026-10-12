@@ -117,6 +117,10 @@ test("GET /api/borrowings/:id get a borrowing record", async () => {
   expect(response.body.status).toBe("borrowed");
   expect(response.statusCode).toBe(200);
 });
+test("GET /api/borrowings/:id get a borrowing record with a non exsithing id", async () => {
+  const response = await request(app).get(`/api/borrowings/-1`);
+  expect(response.statusCode).toBe(404);
+});
 test("PATCH /api/borrowings/:id/return return a book", async () => {
   const reponse = await request(app).patch(
     `/api/borrowings/${borrowid}/return`,
@@ -133,7 +137,6 @@ test("PATCH /api/borrowings/:id/return with no pending request", async () => {
   const response = await request(app).patch(
     `/api/borrowings/${borrow.body.id}/return`,
   );
-  console.log(borrow.body);
   expect(returnpend.statusCode).toBe(200);
   expect(borrow.statusCode).toBe(201);
   expect(response.statusCode).toBe(200);
