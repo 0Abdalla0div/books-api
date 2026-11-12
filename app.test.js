@@ -45,7 +45,7 @@ test("POST /api/books return 400 bad body", async () => {
 test("PUT /api/books update values", async () => {
   const response = await request(app)
     .put(`/api/books/${createdID}`)
-    .send({ name: `test${121}`, author: `test${121}` });
+    .send({ name: `test${12111}`, author: `test${12111}` });
   expect(response.statusCode).toBe(200);
 });
 test("PUT /api/books return 400 bad values", async () => {
@@ -83,10 +83,16 @@ test("GET /api/users return all users", async () => {
 test("POST /api/users create a new user", async () => {
   const response = await request(app)
     .post("/api/users")
-    .send({ name: "testuser", email: `testuser${Date.now()}@email.com` });
+    .send({ name: "testuser", email: `testuser${Date.now()}@email.com` ,password: "tesgtusrss"});
   expect(response.statusCode).toBe(201);
   userid = response.body.id;
 });
+test("POST /api/user login with real data", async () => {
+  const response = await request(app)
+    .post("/api/user")
+    .send({email: `testuser1794132286794@email.com` ,password: "testuser"});
+  expect(response.statusCode).toBe(200);
+},5000);
 test("PATCH /api/borrowings/:id/return return a book", async () => {
   const reponse = await request(app).patch(`/api/borrowings/57/return`);
   expect(reponse.statusCode).toBe(404);
