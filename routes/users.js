@@ -39,26 +39,23 @@ router.post("/users", async (req, res) => {
 router.post("/user", async (req, res) => {
   let { email, password } = req.body;
   try {
-let user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-  if (user.rows.length === 0) {
-    return res.status(400).json({
-      error: "Validation Error",
-      message: "wrong email or password",
-    });
-  }
+    let user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    let match;
+    if (user.rows.length !== 0) {
+      match = await bcrypt.compare(password, user.rows[0].password);
+    }
 
- const match = await bcrypt.compare(password, user.rows[0].password);
-
-  if (match === false) {
-    return res.status(400).json({
-      error: "Validation Error",
-      message: "wrong email or password",
-    });
-  }
-  return res.status(200).json({ message: "Logged in successfully" });
+    if (user.rows.length === 0 || match === false) {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: "wrong email or password",
+      });
+    }
+    return res.status(200).json({ message: "Logged in successfully" });
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-
 });
 module.exports = router;
