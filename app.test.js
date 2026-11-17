@@ -92,6 +92,7 @@ test("POST /api/user login with real data", async () => {
     .post("/api/user")
     .send({email: `testuser1794132286794@email.com` ,password: "testuser"});
   expect(response.statusCode).toBe(200);
+  console.log(response.body)
 },5000);
 test("PATCH /api/borrowings/:id/return return a book", async () => {
   const reponse = await request(app).patch(`/api/borrowings/57/return`);

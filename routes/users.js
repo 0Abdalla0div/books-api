@@ -53,9 +53,15 @@ router.post("/user", async (req, res) => {
         message: "wrong email or password",
       });
     }
-    return res.status(200).json({ message: "Logged in successfully" });
+    return res
+      .status(200)
+      .json({
+        name: user.rows[0].name,
+        Email: user.rows[0].email,
+        message: "Logged in successfully",
+      });
   } catch (err) {
-    console.log(err);
+    throw err;
   }
 });
 module.exports = router;
