@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../CoPoDestrputer.js");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 router.get("/users", async (req, res) => {
   let result = await pool.query("SELECT * FROM users");
   return res.status(200).json(result.rows);
@@ -48,16 +49,23 @@ router.post("/user", async (req, res) => {
     }
 
     if (user.rows.length === 0 || match === false) {
-      return res.status(400).json({
-        error: "Validation Error",
+      return res.status(401).json({
+        error: "Authentication Error",
+
         message: "wrong email or password",
       });
     }
+    const token = jwt.sign(
+      {id: user.rows[0].id},
+      process.env.JWT_SECRET,
+      {expiresIn:"1h"}
+    )
     return res
       .status(200)
       .json({
         name: user.rows[0].name,
-        Email: user.rows[0].email,
+        email: user.rows[0].email,
+        token:token,
         message: "Logged in successfully",
       });
   } catch (err) {

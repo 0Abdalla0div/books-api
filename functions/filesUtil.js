@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const validatebook = (req, res, next) => {
   const data = validateData(req.body);
   if (data.isValid) {
@@ -41,4 +42,18 @@ function validateData(data) {
   }
   return { isValid: true, data: validData };
 }
-module.exports = {validateData , validatebook};
+function verifyToken(req,res,next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({error:"Verfiycation error",massage:"missing token"});
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token,process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({error:"Verfiycation error",massage:"expired or unvalid token",err:err})
+  }
+}
+module.exports = {validateData , validatebook,verifyToken};

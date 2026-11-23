@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../CoPoDestrputer.js");
+const {verifyToken} = require("../functions/filesUtil.js")
 router.get("/borrowings/:id", async (req, res) => {
   const id = Number(req.params.id);
   const result = await pool.query("SELECT * FROM borrowings WHERE id = $1", [
@@ -16,8 +17,8 @@ router.get("/borrowings/:id", async (req, res) => {
   }
 });
 
-router.post("/borrowings", async (req, res) => {
-  const { user_id, book_id } = req.body;
+router.post("/borrowings",verifyToken, async (req, res) => {
+  const { book_id } = req.body;
   const activeBorrow = await pool.query(
     "SELECT * FROM borrowings WHERE book_id = $1 AND status = 'borrowed'",
     [book_id],
@@ -26,7 +27,7 @@ router.post("/borrowings", async (req, res) => {
   try {
     const newBorrowing = await pool.query(
       "INSERT INTO borrowings (user_id,book_id,status) VALUES ($1,$2,$3) RETURNING *",
-      [user_id, book_id, status],
+      [req.userId, book_id, status],
     );
     return res.status(201).json(newBorrowing.rows[0]);
   } catch (err) {
