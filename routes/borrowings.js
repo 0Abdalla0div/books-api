@@ -40,22 +40,23 @@ router.post("/borrowings",verifyToken, async (req, res) => {
     throw err;
   }
 });
-router.patch("/borrowings/:id/return", async (req, res) => {
+router.patch("/borrowings/:id/return",verifyToken, async (req, res) => {
   const id = Number(req.params.id);
+  const userId = req.userId;
   const clint = await pool.connect();
   try {
     await clint.query("BEGIN");
 
     const updated = await clint.query(
-      "UPDATE borrowings SET status = 'returned', returned_at = now() WHERE id = $1 AND status = 'borrowed' RETURNING *",
-      [id],
+      "UPDATE borrowings SET status = 'returned', returned_at = now() WHERE id = $1 AND status = 'borrowed' AND user_id = $2 RETURNING *",
+      [id,userId],
     );
 
     if (updated.rows.length === 0) {
       await clint.query("ROLLBACK");
       return res.status(404).json({
         error: "Not Found",
-        message: "no active borrowing with this id",
+        message: "no active borrowing with this id for the current user",
       });
     }
     const bookid = updated.rows[0].book_id;

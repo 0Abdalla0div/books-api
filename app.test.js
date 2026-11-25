@@ -84,38 +84,45 @@ test("GET /api/users return all users", async () => {
 test("POST /api/users create a new user", async () => {
   const response = await request(app)
     .post("/api/users")
-    .send({ name: "testuser", email: `testuser${Date.now()}@email.com` ,password: `testuser`});
+    .send({
+      name: "testuser",
+      email: `testuser${Date.now()}@email.com`,
+      password: `testuser`,
+    });
   expect(response.statusCode).toBe(201);
-  user = {email: response.body.email,password:"testuser"};
+  user = { email: response.body.email, password: "testuser" };
 });
 test("POST /api/user login with real data", async () => {
-  const response = await request(app)
-    .post("/api/user")
-    .send(user);
+  const response = await request(app).post("/api/user").send(user);
   expect(response.statusCode).toBe(200);
   authTokin = response.body.token;
 });
 test("PATCH /api/borrowings/:id/return return a book", async () => {
-  const reponse = await request(app).patch(`/api/borrowings/57/return`);
+  const reponse = await request(app)
+    .patch(`/api/borrowings/57/return`)
+    .set("Authorization", `Bearer ${authTokin}`);
   expect(reponse.statusCode).toBe(404);
 });
 test("POST /api/borrowings create a borrow order", async () => {
   const response = await request(app)
-    .post("/api/borrowings").set('Authorization', `Bearer ${authTokin}`)
-    .send({  book_id: `${createdID}` });
-    console.log(response.body);
+    .post("/api/borrowings")
+    .set("Authorization", `Bearer ${authTokin}`)
+    .send({ book_id: `${createdID}` });
+  console.log(response.body);
   expect(response.statusCode).toBe(201);
   borrowid = response.body.id;
 });
 test("POST /api/borrowings try to borrow an unexicting book", async () => {
   const response = await request(app)
-    .post("/api/borrowings").set('Authorization', `Bearer ${authTokin}`)
+    .post("/api/borrowings")
+    .set("Authorization", `Bearer ${authTokin}`)
     .send({ book_id: `${1}` });
   expect(response.statusCode).toBe(404);
 });
 test("POST /api/borrowings create a borrow order that is pending", async () => {
   const response = await request(app)
-    .post("/api/borrowings").set('Authorization', `Bearer ${authTokin}`)
+    .post("/api/borrowings")
+    .set("Authorization", `Bearer ${authTokin}`)
     .send({ book_id: `${createdID}` });
   pending = response.body.id;
   expect(response.body.status).toBe("pending");
@@ -131,21 +138,24 @@ test("GET /api/borrowings/:id get a borrowing record with a non exsithing id", a
   expect(response.statusCode).toBe(404);
 });
 test("PATCH /api/borrowings/:id/return return a book", async () => {
-  const reponse = await request(app).patch(
-    `/api/borrowings/${borrowid}/return`,
-  );
+  const reponse = await request(app)
+    .patch(`/api/borrowings/${borrowid}/return`)
+    .set("Authorization", `Bearer ${authTokin}`);
   expect(reponse.body.status).toBe("returned");
   expect(reponse.statusCode).toBe(200);
 });
 test("PATCH /api/borrowings/:id/return with no pending request", async () => {
-  const returnpend = await request(app).patch(`/api/borrowings/${pending}/return`);
+  const returnpend = await request(app).patch(
+    `/api/borrowings/${pending}/return`,
+  ).set('Authorization', `Bearer ${authTokin}`);
   const borrow = await request(app)
-    .post("/api/borrowings").set('Authorization', `Bearer ${authTokin}`)
-    .send({  book_id: `${createdID}` });
+    .post("/api/borrowings")
+    .set("Authorization", `Bearer ${authTokin}`)
+    .send({ book_id: `${createdID}` });
 
-  const response = await request(app).patch(
-    `/api/borrowings/${borrow.body.id}/return`,
-  );
+  const response = await request(app)
+    .patch(`/api/borrowings/${borrow.body.id}/return`)
+    .set("Authorization", `Bearer ${authTokin}`);
   expect(returnpend.statusCode).toBe(200);
   expect(borrow.statusCode).toBe(201);
   expect(response.statusCode).toBe(200);
